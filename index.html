@@ -137,7 +137,7 @@
         const SPEED = 30; 
 
         // --- Hidden Feature Configuration ---
-        // 
+        // Change this link to your desired pirate or external website destination!
         const PIRATE_LINK = "https://fmhy.net/"; 
 
         // --- Firebase/Firestore Configuration (Placeholder) ---
@@ -168,16 +168,18 @@
             'dir_skills': {
                 type: 'dir',
                 contents: {
-                    'foundation.txt': 'skills_foundation',
-                    'hardware_software.txt': 'skills_hardware_software',
+                    'programming_languages.txt': 'skills_programming_languages',
+                    'modelling_gamedev.txt': 'skills_modelling_gamedev',
+                    'ecet_hardware.txt': 'skills_ecet_hardware',
                     '../': '/', // Navigation link
                 }
             },
             'dir_projects': {
                 type: 'dir',
                 contents: {
-                    'binary_calc.txt': 'proj_binary_calc',
-                    'led_chaser.txt': 'proj_led_chaser',
+                    'non_profit_cloud.txt': 'proj_non_profit_cloud',
+                    'art_design.txt': 'proj_art_design',
+                    'set_construction.txt': 'proj_set_construction',
                     '../': '/', // Navigation link
                 }
             }
@@ -187,11 +189,11 @@
         const contentMap = {
             'user_profile': [
                 "<h2>[USER PROFILE]</h2>",
-                "<p><strong>> NAME:</strong> ELIJAH 'ELI' VANCE</p>",
+                "<p><strong>> NAME:</strong> VEDDHANG VENKATRAJAN</p>",
                 "<p><strong>> MAJOR:</strong> Electrical and Computer Engineering Technology (ECET)</p>",
                 "<p><strong>> UNIVERSITY:</strong> New Jersey Institute of Technology (NJIT)</p>",
                 "<p><strong>> YEAR:</strong> Freshman (Fall 2025)</p>",
-                "<p><strong>> CONTACT:</strong> <a href='mailto:elijah.vance@njit.edu'>elijah.vance@njit.edu</a> | GITHUB: <a href='#' target='_blank'>/elijahvance</a></p>",
+                "<p><strong>> CONTACT:</strong> <a href='mailto:your.email@njit.edu'>your.email@njit.edu</a> | GITHUB: <a href='#' target='_blank'>/veddhangv</a></p>",
             ],
             'help_info': [
                 "<h2>[COMMAND LIST]</h2>",
@@ -200,42 +202,47 @@
                 "<p><strong>cat [file]</strong>: Display contents of a file.</p>",
                 "<p><strong>clear</strong>: Clear the terminal screen.</p>",
                 "<p><strong>whoami</strong>: Display current user and path.</p>",
+                "<p><strong>sysinfo</strong>: Display detailed system status.</p>",
             ],
             'readme_info': [
                 "<h2>[SYSTEM INFO]</h2>",
-                "<p>Welcome to the Elijah Vance ECET Portfolio System (v1.1.2).</p>",
-                "<p>This terminal simulates an internal system view of Elijah's skills and projects.</p>",
-                "<p>Last updated: 2025-11-17_18:30:00</p>",
+                "<p>Welcome to the Veddhang Venkatrajan ECET Portfolio System (v1.2.0).</p>",
+                "<p>This terminal simulates an internal system view of Veddhang's interdisciplinary skills and projects.</p>",
+                "<p>Last updated: 2025-11-18_15:30:00</p>",
                 "<p>Type 'cat help.txt' to begin your exploration.</p>",
             ],
-            'skills_foundation': [
-                "<h2>[ECET FOUNDATION SKILLS]</h2>",
-                "<ul class='list-disc ml-8'>",
-                "<li>Digital Logic (Basic Gates, Breadboarding)</li>",
-                "<li>Introductory C/C++ Programming</li>",
-                "<li>Circuit Analysis (Ohm's Law, Kirchhoff's Rules)</li>",
-                "<li>Soldering and Wiring Techniques</li>",
-                "</ul>",
+            'skills_programming_languages': [
+                "<h2>[PROGRAMMING LANGUAGES]</h2>",
+                "<p><strong>Languages:</strong> C, C#, Java, JavaScript, Python</p>",
+                "<p>Focus areas include object-oriented programming (OOP), scripting for automation, and foundational ECET programming principles.</p>",
             ],
-            'skills_hardware_software': [
-                "<h2>[HARDWARE/SOFTWARE FOCUS]</h2>",
-                "<ul class='list-disc ml-8'>",
-                "<li>Microcontroller Basics (Arduino UNO experimentation)</li>",
-                "<li>Python Scripting (Data Logging/Automation Interest)</li>",
-                "<li>Network Configuration (Home Router setup, basic IP addressing)</li>",
-                "</ul>",
+            'skills_modelling_gamedev': [
+                "<h2>[MODELLING & GAME DEVELOPMENT]</h2>",
+                "<p><strong>Game Engines:</strong> Unity, Unreal Engine 4/5, Godot</p>",
+                "<p><strong>Modelling Tools:</strong> Blender, Maya, Onshape</p>",
+                "<p>Experience in creating 3D assets, scene assembly, and implementing game logic using C# (Unity) and Blueprints (UE4/5).</p>",
             ],
-            'proj_binary_calc': [
-                "<h2>[PROJECT 01: Binary Calculator Simulator (C++)]</h2>",
-                "<p>- **Context**: Developed for ECET 101 to reinforce digital arithmetic concepts.</p>",
-                "<p>- **Description**: Simple console application simulating basic binary arithmetic (addition, subtraction) to reinforce digital logic concepts.</p>",
-                "<p>- **Tech Stack**: C++ (CLI)</p>",
+            'skills_ecet_hardware': [
+                "<h2>[ECET & HARDWARE SKILLS]</h2>",
+                "<p><strong>Microcontrollers:</strong> ESP32, Arduino</p>",
+                "<p><strong>Advanced Concepts:</strong> Rudimentary knowledge of FPGAs (Field-Programmable Gate Arrays).</p>",
+                "<p><strong>Fabrication:</strong> 3D Printing, Woodworking, Set Construction.</p>",
             ],
-            'proj_led_chaser': [
-                "<h2>[PROJECT 02: LED Chaser Array (Digital Logic Lab)]</h2>",
-                "<p>- **Context**: Lab implementation for digital logic course.</p>",
-                "<p>- **Description**: Designed and implemented a sequential LED lighting circuit using a 555 timer and Johnson counter on a breadboard.</p>",
-                "<p>- **Tech Stack**: Hardware (Breadboard), 555 Timer, Johnson Counter, LEDs.</p>",
+            'proj_non_profit_cloud': [
+                "<h2>[PROJECT: NON-PROFIT CLOUD/DATABASE]</h2>",
+                "<p>- **Role**: Cloud Programmer / Database Administrator.</p>",
+                "<p>- **Summary**: Assisted a non-profit organization in establishing and maintaining a secure database system for operations management.</p>",
+                "<p>- **Key Skills**: Database structure, cloud programming concepts, security implementation.</p>",
+            ],
+            'proj_art_design': [
+                "<h2>[PROJECT: DIGITAL ART & DESIGN]</h2>",
+                "<p>- **Focus**: Logo design, merchandise branding, and digital illustration.</p>",
+                "<p>- **Summary**: Designed several logos and promotional graphics, demonstrating skills in visual communication and digital art tools.</p>",
+            ],
+            'proj_set_construction': [
+                "<h2>[PROJECT: SET CONSTRUCTION / WOODWORKING]</h2>",
+                "<p>- **Focus**: Practical, hands-on fabrication and assembly.</p>",
+                "<p>- **Summary**: Applied skills in woodworking and set construction to build physical structures, demonstrating precision and mechanical aptitude.</p>",
             ]
         };
 
@@ -260,9 +267,22 @@
             if (CWD === '/') {
                 return fileSystem['/'];
             }
-            // Logic to fetch directory contents based on CWD key (e.g., 'dir_skills')
-            const dirKey = CWD.substring(1).toLowerCase().replace('/', '_');
-            return fileSystem[dirKey];
+            // Remove leading/trailing slashes and convert to lowercase for the key lookup
+            const pathSegments = CWD.substring(1).split('/').filter(s => s.length > 0);
+            
+            // Should always be one segment deep, e.g., 'skills' or 'projects'
+            if (pathSegments.length > 0) {
+                const dirName = pathSegments[0];
+                const dirKey = `dir_${dirName.toLowerCase()}`;
+                
+                // Return the specific directory object if it exists
+                if (fileSystem[dirKey]) {
+                    return fileSystem[dirKey];
+                }
+            }
+            
+            // Fallback to the root if the path is invalid or unresolvable
+            return fileSystem['/'];
         }
 
         // --- Command Processor ---
@@ -279,7 +299,7 @@
             // Add the executed command to history display
             outputHistory.innerHTML += `<p><span class="text-green-300">C:${CWD}></span> ${trimmedInput}</p>`;
 
-            // --- INTERACTIVE MODE CHECK ---
+            // --- INTERACTIVE MODE CHECK (AHOY) ---
             if (terminalMode === 'ahoy_prompt') {
                 if (command === 'n') {
                     output.push('<span class="text-yellow-500">Pirate navigation aborted. Returning to command prompt.</span>');
@@ -318,7 +338,7 @@
                     // List contents of the current directory
                     const list = Object.keys(contents).map(item => {
                         const target = contents[item];
-                        // If the target is an object (a key in fileSystem), it's a directory
+                        // If the target is a string that starts with 'dir_', it's a directory
                         const isDir = typeof target === 'string' && target.startsWith('dir_');
                         
                         // Apply a color for directories
@@ -337,11 +357,8 @@
                         }
                     } else if (arg && contents[arg] && contents[arg].startsWith('dir_')) {
                         // Change to a subdirectory
-                        const newDirKey = contents[arg];
-                        if (fileSystem[newDirKey]) {
-                            CWD = `/${arg}/`;
-                            updatePrompt();
-                        }
+                        CWD = `/${arg}/`;
+                        updatePrompt();
                     } else if (arg === '') {
                         // cd without argument goes to root
                         CWD = '/';
@@ -373,6 +390,19 @@
                     output.push(`Current Path: C:${CWD}`);
                     break;
                 
+                case 'sysinfo': // New System Info Command
+                    output.push('=========================================');
+                    output.push('<span class="text-cyan-400">NJIT ECET PORTFOLIO SYSTEM STATUS</span>');
+                    output.push('=========================================');
+                    output.push(`> Current User: <span class="text-green-300">VEDDHANG_V</span>`);
+                    output.push(`> Program:      ECET Freshman`);
+                    output.push(`> CWD:          <span class="text-yellow-400">C:${CWD}</span>`);
+                    output.push(`> Last Access:  ${new Date().toLocaleString()}`);
+                    output.push('-----------------------------------------');
+                    output.push(`> Database Link: ONLINE (Non-Profit Experience)`);
+                    output.push(`> Fabrication Module: READY (3D Print/Woodwork)`);
+                    break;
+
                 case 'ahoy': // HIDDEN FUNCTION: Set mode to interactive prompt
                     output.push('<span class="text-yellow-400">Ahoooy! Do you wish to sail the high seas? (Y/N)</span>');
                     terminalMode = 'ahoy_prompt';
@@ -464,7 +494,7 @@
             updatePrompt();
             
             // Initial boot message output
-            const bootMsg = 'NJIT_ECET_SYSTEM v1.1.2 - Boot Successful.';
+            const bootMsg = 'NJIT_ECET_SYSTEM v1.2.0 - Boot Successful.';
             const welcomeMsg = 'ACCESS GRANTED. Type <span class="text-cyan-400">cat readme.txt</span> to begin.';
             
             // The following line is from the previous version and should be removed if it exists
