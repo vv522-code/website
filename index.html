@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NJIT ECET // SYSTEM ACCESS GRANTED</title>
+    <!-- Load Tailwind CSS for utility styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use a hackery/terminal-friendly font -->
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for the terminal aesthetic */
+        :root {
+            --green: #00ff00;
+            --dark-green: #004400;
+            --bg-color: #0d1a0d;
+        }
+
+        body {
+            font-family: 'VT323', monospace;
+            background-color: var(--bg-color);
+            color: var(--green);
+            overflow: hidden; /* Prevent body scroll, canvas handles the screen */
+        }
+        
+        /* The main terminal container */
+        .terminal-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 1000px;
+            height: 90vh;
+            max-height: 700px;
+            border: 2px solid var(--green);
+            box-shadow: 0 0 10px var(--green), inset 0 0 10px var(--dark-green);
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 2rem;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        /* Styling for text inside the terminal */
+        .terminal-text {
+            line-height: 1.5;
+            text-shadow: 0 0 5px var(--green);
+        }
+
+        /* Input field styling */
+        #command-input {
+            color: var(--green);
+            font-family: inherit;
+            font-size: inherit;
+            letter-spacing: 0.05em;
+            caret-color: var(--green); /* Blinking caret/cursor */
+        }
+
+        /* Remove the default cursor element, let the input caret act as cursor */
+        .cursor { display: none !important; }
+
+        /* Canvas for the Matrix Rain Effect (Background) */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.2;
+        }
+        
+        /* Utility overrides for hackery style */
+        .terminal-text h1, .terminal-text h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--green);
+        }
+
+        .terminal-text a {
+            color: #00ffff; /* Cyan for links */
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .terminal-text a:hover {
+            color: #ff00ff; /* Magenta hover */
+        }
+        
+        /* Scrollbar styling for a cleaner look */
+        .terminal-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .terminal-container::-webkit-scrollbar-thumb {
+            background-color: var(--green);
+            border-radius: 4px;
+        }
+        .terminal-container::-webkit-scrollbar-track {
+            background: var(--dark-green);
+        }
+
+        @media (max-width: 640px) {
+            .terminal-container {
+                padding: 1rem;
+                height: 95vh;
+                max-height: none;
+                width: 95%;
+            }
+            .terminal-text h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Matrix Rain Background Canvas -->
+    <canvas id="matrix-canvas"></canvas>
+
+    <!-- Main Portfolio Terminal Window -->
+    <div class="terminal-container">
+        <div class="terminal-text text-sm md:text-base">
+            <div id="output-history">
+                <!-- Command output and previous prompts go here -->
+            </div>
+            
+            <!-- Input line for user commands -->
+            <form id="command-form" class="flex items-center mt-4">
+                <span id="prompt-display">C:\></span>
+                <input type="text" id="command-input" class="bg-transparent border-none p-0 ml-1 w-full" autofocus autocomplete="off">
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global Constants and Setup
+        const FONT_SIZE = 12;
+        const SPEED = 30; 
+
+        // --- Hidden Feature Configuration ---
+        // 
+        const PIRATE_LINK = "https://fmhy.net/"; 
+
+        // --- Firebase/Firestore Configuration (Placeholder) ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const apiKey = ""; 
+
+        // --- Core Terminal State ---
+        let CWD = '/'; // Current Working Directory
+        let terminalMode = 'normal'; // Added state variable for interactive commands
+        const outputHistory = document.getElementById('output-history');
+        const promptDisplay = document.getElementById('prompt-display');
+        const commandInput = document.getElementById('command-input');
+        const commandForm = document.getElementById('command-form');
+
+        // --- Portfolio File System Structure ---
+        const fileSystem = {
+            '/': {
+                type: 'dir',
+                contents: {
+                    'profile.txt': 'user_profile',
+                    'skills': 'dir_skills',
+                    'projects': 'dir_projects',
+                    'help.txt': 'help_info',
+                    'readme.txt': 'readme_info',
+                }
+            },
+            'dir_skills': {
+                type: 'dir',
+                contents: {
+                    'foundation.txt': 'skills_foundation',
+                    'hardware_software.txt': 'skills_hardware_software',
+                    '../': '/', // Navigation link
+                }
+            },
+            'dir_projects': {
+                type: 'dir',
+                contents: {
+                    'binary_calc.txt': 'proj_binary_calc',
+                    'led_chaser.txt': 'proj_led_chaser',
+                    '../': '/', // Navigation link
+                }
+            }
+        };
+
+        // --- Portfolio Content Map (Actual text content) ---
+        const contentMap = {
+            'user_profile': [
+                "<h2>[USER PROFILE]</h2>",
+                "<p><strong>> NAME:</strong> ELIJAH 'ELI' VANCE</p>",
+                "<p><strong>> MAJOR:</strong> Electrical and Computer Engineering Technology (ECET)</p>",
+                "<p><strong>> UNIVERSITY:</strong> New Jersey Institute of Technology (NJIT)</p>",
+                "<p><strong>> YEAR:</strong> Freshman (Fall 2025)</p>",
+                "<p><strong>> CONTACT:</strong> <a href='mailto:elijah.vance@njit.edu'>elijah.vance@njit.edu</a> | GITHUB: <a href='#' target='_blank'>/elijahvance</a></p>",
+            ],
+            'help_info': [
+                "<h2>[COMMAND LIST]</h2>",
+                "<p><strong>ls</strong>: List contents of the current directory.</p>",
+                "<p><strong>cd [directory]</strong>: Change directory. Use 'cd ..' to go up.</p>",
+                "<p><strong>cat [file]</strong>: Display contents of a file.</p>",
+                "<p><strong>clear</strong>: Clear the terminal screen.</p>",
+                "<p><strong>whoami</strong>: Display current user and path.</p>",
+            ],
+            'readme_info': [
+                "<h2>[SYSTEM INFO]</h2>",
+                "<p>Welcome to the Elijah Vance ECET Portfolio System (v1.1.2).</p>",
+                "<p>This terminal simulates an internal system view of Elijah's skills and projects.</p>",
+                "<p>Last updated: 2025-11-17_18:30:00</p>",
+                "<p>Type 'cat help.txt' to begin your exploration.</p>",
+            ],
+            'skills_foundation': [
+                "<h2>[ECET FOUNDATION SKILLS]</h2>",
+                "<ul class='list-disc ml-8'>",
+                "<li>Digital Logic (Basic Gates, Breadboarding)</li>",
+                "<li>Introductory C/C++ Programming</li>",
+                "<li>Circuit Analysis (Ohm's Law, Kirchhoff's Rules)</li>",
+                "<li>Soldering and Wiring Techniques</li>",
+                "</ul>",
+            ],
+            'skills_hardware_software': [
+                "<h2>[HARDWARE/SOFTWARE FOCUS]</h2>",
+                "<ul class='list-disc ml-8'>",
+                "<li>Microcontroller Basics (Arduino UNO experimentation)</li>",
+                "<li>Python Scripting (Data Logging/Automation Interest)</li>",
+                "<li>Network Configuration (Home Router setup, basic IP addressing)</li>",
+                "</ul>",
+            ],
+            'proj_binary_calc': [
+                "<h2>[PROJECT 01: Binary Calculator Simulator (C++)]</h2>",
+                "<p>- **Context**: Developed for ECET 101 to reinforce digital arithmetic concepts.</p>",
+                "<p>- **Description**: Simple console application simulating basic binary arithmetic (addition, subtraction) to reinforce digital logic concepts.</p>",
+                "<p>- **Tech Stack**: C++ (CLI)</p>",
+            ],
+            'proj_led_chaser': [
+                "<h2>[PROJECT 02: LED Chaser Array (Digital Logic Lab)]</h2>",
+                "<p>- **Context**: Lab implementation for digital logic course.</p>",
+                "<p>- **Description**: Designed and implemented a sequential LED lighting circuit using a 555 timer and Johnson counter on a breadboard.</p>",
+                "<p>- **Tech Stack**: Hardware (Breadboard), 555 Timer, Johnson Counter, LEDs.</p>",
+            ]
+        };
+
+        // --- Utility Functions ---
+
+        /** Appends a new line of output to the history div and ensures scroll-to-bottom. */
+        function appendOutput(content) {
+            const outputElement = document.createElement('p');
+            outputElement.innerHTML = content.join('<br>') || content;
+            outputHistory.appendChild(outputElement);
+            // Scroll to the latest output
+            outputHistory.scrollTop = outputHistory.scrollHeight;
+        }
+
+        /** Updates the displayed prompt based on the CWD. */
+        function updatePrompt() {
+            promptDisplay.textContent = `C:${CWD}>`;
+        }
+        
+        /** Gets the current directory's contents object */
+        function getCurrentDir() {
+            if (CWD === '/') {
+                return fileSystem['/'];
+            }
+            // Logic to fetch directory contents based on CWD key (e.g., 'dir_skills')
+            const dirKey = CWD.substring(1).toLowerCase().replace('/', '_');
+            return fileSystem[dirKey];
+        }
+
+        // --- Command Processor ---
+
+        function processCommand(input) {
+            const trimmedInput = input.trim();
+            const lowerInput = trimmedInput.toLowerCase();
+            const parts = lowerInput.split(/\s+/);
+            const command = parts[0];
+            const arg = parts[1] || '';
+            let output = [];
+            let error = null;
+            
+            // Add the executed command to history display
+            outputHistory.innerHTML += `<p><span class="text-green-300">C:${CWD}></span> ${trimmedInput}</p>`;
+
+            // --- INTERACTIVE MODE CHECK ---
+            if (terminalMode === 'ahoy_prompt') {
+                if (command === 'n') {
+                    output.push('<span class="text-yellow-500">Pirate navigation aborted. Returning to command prompt.</span>');
+                    terminalMode = 'normal';
+                } else if (command === 'y') {
+                    output.push('<span class="text-green-300">Ahoy, Captain! Setting course for adventure...</span>');
+                    output.push(`\t<a href="${PIRATE_LINK}" target="_blank" class="text-cyan-400">PIRATE_NAV_EXE (CLICK TO SAIL)</a>`);
+                    terminalMode = 'normal';
+                } else if (command === 'clear') {
+                    outputHistory.innerHTML = '';
+                    // Do not reset mode on clear
+                } else if (command === '') {
+                    // Do nothing, just re-prompt implicitly
+                } else {
+                    error = `Invalid response: ${trimmedInput}. Please type 'Y' to sail or 'N' to return.`;
+                }
+
+                if (error) {
+                    output.push(`<span class="text-red-500">${error}</span>`);
+                }
+                
+                appendOutput(output);
+                commandInput.value = '';
+                commandInput.focus();
+                return; // Exit processing
+            }
+
+            // --- NORMAL MODE COMMANDS ---
+
+            const currentDir = getCurrentDir();
+            const contents = currentDir.contents;
+
+
+            switch (command) {
+                case 'ls':
+                    // List contents of the current directory
+                    const list = Object.keys(contents).map(item => {
+                        const target = contents[item];
+                        // If the target is an object (a key in fileSystem), it's a directory
+                        const isDir = typeof target === 'string' && target.startsWith('dir_');
+                        
+                        // Apply a color for directories
+                        return isDir ? `<span class="text-yellow-400">${item}</span>` : item;
+                    }).join('\t');
+                    output.push(list);
+                    break;
+
+                case 'cd':
+                    // Change directory
+                    if (arg === '..') {
+                        // Go up one level (only possible if not at root)
+                        if (CWD !== '/') {
+                            CWD = '/';
+                            updatePrompt();
+                        }
+                    } else if (arg && contents[arg] && contents[arg].startsWith('dir_')) {
+                        // Change to a subdirectory
+                        const newDirKey = contents[arg];
+                        if (fileSystem[newDirKey]) {
+                            CWD = `/${arg}/`;
+                            updatePrompt();
+                        }
+                    } else if (arg === '') {
+                        // cd without argument goes to root
+                        CWD = '/';
+                        updatePrompt();
+                    }
+                    else {
+                        error = `cd: ${arg}: No such file or directory.`;
+                    }
+                    break;
+
+                case 'cat':
+                    // Display file contents
+                    if (arg && contents[arg] && !contents[arg].startsWith('dir_')) {
+                        const fileKey = contents[arg];
+                        output = contentMap[fileKey];
+                    } else if (arg) {
+                         error = `cat: ${arg}: Is a directory or does not exist.`;
+                    } else {
+                         error = `cat: Missing operand. Usage: cat [file]`;
+                    }
+                    break;
+                
+                case 'clear':
+                    outputHistory.innerHTML = '';
+                    break;
+
+                case 'whoami':
+                    output.push('User: root');
+                    output.push(`Current Path: C:${CWD}`);
+                    break;
+                
+                case 'ahoy': // HIDDEN FUNCTION: Set mode to interactive prompt
+                    output.push('<span class="text-yellow-400">Ahoooy! Do you wish to sail the high seas? (Y/N)</span>');
+                    terminalMode = 'ahoy_prompt';
+                    break;
+                    
+                case '':
+                    // Empty command
+                    break;
+
+                default:
+                    error = `bash: ${command}: command not found. Type 'cat help.txt' for commands.`;
+                    break;
+            }
+
+            if (error) {
+                output.push(`<span class="text-red-500">${error}</span>`);
+            }
+            
+            appendOutput(output);
+            
+            // Ensure input field is focused for continuous typing
+            commandInput.value = '';
+            commandInput.focus();
+        }
+
+        // --- Event Listener ---
+        
+        // CRITICAL FIX: Ensures the input field is always focused when the user presses a key,
+        // preventing the keyboard from "failing" if the input loses focus.
+        document.body.addEventListener('keydown', () => {
+            if (document.activeElement !== commandInput) {
+                commandInput.focus();
+            }
+        });
+        
+        commandForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const input = commandInput.value;
+            processCommand(input);
+        });
+        
+        // --- Matrix Rain Effect (Unchanged) ---
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+        let columns = Math.floor(width / FONT_SIZE);
+        let drops = [];
+        for (let i = 0; i < columns; i++) {
+            drops[i] = 1;
+        }
+        const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+{}|:"<>?`~-=;[]/\\';
+
+        const setupCanvas = () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            columns = Math.floor(width / FONT_SIZE);
+            drops = [];
+            for (let i = 0; i < columns; i++) {
+                drops[i] = 1;
+            }
+        };
+        window.addEventListener('resize', setupCanvas);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(13, 26, 13, 0.05)'; 
+            ctx.fillRect(0, 0, width, height);
+            ctx.fillStyle = '#00ff00'; 
+            ctx.font = `${FONT_SIZE}px monospace`;
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = characters[Math.floor(Math.random() * characters.length)];
+                const x = i * FONT_SIZE;
+                const y = drops[i] * FONT_SIZE;
+                ctx.fillText(text, x, y);
+
+                if (y > height && Math.random() > 0.97) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+            requestAnimationFrame(drawMatrix);
+        }
+
+        // --- Initial Boot Sequence ---
+        window.onload = function() {
+            setupCanvas();
+            drawMatrix();
+            updatePrompt();
+            
+            // Initial boot message output
+            const bootMsg = 'NJIT_ECET_SYSTEM v1.1.2 - Boot Successful.';
+            const welcomeMsg = 'ACCESS GRANTED. Type <span class="text-cyan-400">cat readme.txt</span> to begin.';
+            
+            // The following line is from the previous version and should be removed if it exists
+            const staticLine = document.getElementById('output-line-0');
+            if (staticLine) staticLine.remove();
+
+            // Simulate boot sequence text output (not typing character by character, but line by line)
+            appendOutput(['INITIATING SYSTEM... [OK]', '']);
+            setTimeout(() => appendOutput(['<span class="text-green-300">STATUS: ONLINE (100%)</span>', bootMsg]), SPEED * 20);
+            setTimeout(() => appendOutput([welcomeMsg, '']), SPEED * 60);
+            
+            // Initial focus to ensure typing works right away
+            commandInput.focus();
+        };
+
+    </script>
+</body>
+</html>
